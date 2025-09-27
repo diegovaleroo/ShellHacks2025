@@ -34,9 +34,20 @@
         }
         #result {
           margin-top: 20px;
-          white-space: pre-wrap;
           text-align: left;
-          max-width: 400px;
+          max-width: 500px;
+          padding: 15px;
+          border: 1px solid #ccc;
+          border-radius: 8px;
+          background: #f9f9f9;
+        }
+        #result h3 {
+          margin-top: 0;
+          color: #333;
+        }
+        .highlight {
+          font-weight: bold;
+          color: #2c6e49;
         }
     </style>
 </head>
@@ -50,7 +61,7 @@
 
 <button id="upload-btn">Upload</button>
 
-<div id="result"></div>
+<div id="result" style="display: none;"></div>
 
 <script>
     const dropZone = document.getElementById('drop-zone');
@@ -95,15 +106,26 @@
       const formData = new FormData();
       formData.append("file", selectedFile);
 
+      resultDiv.style.display = "block";
+      resultDiv.innerHTML = "<p>Processing...</p>";
+
       try {
         const response = await fetch("http://localhost:5000/upload", {
           method: "POST",
           body: formData
         });
         const data = await response.json();
-        resultDiv.textContent = JSON.stringify(data, null, 2);
+
+        // 🔹 Display nicely formatted results
+        resultDiv.innerHTML = `
+          <h3>Model Result</h3>
+          <p><span class="highlight">Filename:</span> ${data.filename}</p>
+          <p><span class="highlight">Status:</span> ${data.status}</p>
+          ${data.prediction ? `<p><span class="highlight">Prediction:</span> ${data.prediction}</p>` : ""}
+          ${data.confidence ? `<p><span class="highlight">Confidence:</span> ${(data.confidence * 100).toFixed(2)}%</p>` : ""}
+        `;
       } catch (err) {
-        resultDiv.textContent = "Error uploading file: " + err;
+        resultDiv.innerHTML = "<p style='color:red;'>Error uploading file: " + err + "</p>";
       }
     });
 </script>
