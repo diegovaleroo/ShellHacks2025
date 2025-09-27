@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PDF Tools</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      font:16px/1.5  Arial, Helvetica, sans-serif;
+      background:#111c3d; /* dark blue */
+      color:#1f2937;
+      padding:24px;
+    }
+    .page{max-width:1200px;margin:0 auto;}
+    .header{margin-bottom:20px;text-align:center}
+    .title{font-size:2.4rem;font-weight:700;color:#ffffff;letter-spacing:.3px}
+    .subtitle{font-size:1rem;color:#ffffff;opacity:.9;margin-top:6px}
+
+    /* Two-column layout */
+    .grid{
+      display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:stretch;
+    }
+    @media (max-width: 900px){ .grid{grid-template-columns:1fr} }
+
+    /* Card */
+    .card{
+      background:#ffffff;
+      border:1px solid #e5e7eb;
+      border-radius:12px;
+      padding:20px;
+      box-shadow:0 1px 2px rgba(0,0,0,.04);
+      height:100%;
+      display:flex;flex-direction:column;
+    }
+    /* Light pastel pink pane (unchanged color) */
+    .card--pink{ background:#fdeff4; border-color:#f7d6e6; }
+    /* Ensure both pink cards look same size on desktop */
+    @media (min-width: 901px){
+      .card--pink{ min-height: 560px; }
+    }
+
+    .card h2{
+      font-size:1.3rem;color:#111827;margin-bottom:6px;text-align:center;
+    }
+    .card p.lead{font-size:.95rem;color:#6b7280;margin-bottom:14px;text-align:center}
+
+    /* Drop zone */
+    .drop-zone{
+      border:2px dashed #d1d5db;border-radius:10px;padding:24px;background:#fafafa;
+      transition:background .15s ease,border-color .15s ease;cursor:pointer;text-align:center;margin:10px 0 8px;
+    }
+    .drop-zone:hover{background:#f5f5f5}
+    .drop-zone.dragover{border-color:#2563eb;background:#eff6ff}
+    .drop-zone.processing{border-color:#9ca3af;background:#f3f4f6}
+    .file-input{display:none}
+    .dz-icon{font-size:1.6rem;color:#6b7280;margin-bottom:6px}
+    .dz-title{font-weight:600;color:#374151}
+    .dz-sub{font-size:.9rem;color:#6b7280;margin-top:2px}
+
+    /* Buttons */
+    .row{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap;justify-content:center}
+    .btn{
+      appearance:none;border:1px solid #e5e7eb;background:#fff;color:#111827;
+      padding:10px 14px;border-radius:8px;font-weight:600;cursor:pointer;
+      transition:background .15s ease,border-color .15s ease;
+    }
+    .btn:hover{background:#f9fafb;border-color:#d1d5db}
+    .btn-primary{border-color:#2563eb;background:#2563eb;color:#fff}
+    .btn-primary:hover{background:#1d4ed8;border-color:#1d4ed8}
+
+    /* Fields */
+    label{font-weight:600;color:#374151;margin-bottom:6px;display:block}
+    .textarea,.input{
+      width:100%;border:1px solid #e5e7eb;border-radius:8px;padding:10px;font:inherit;background:#fff;
+      transition:border-color .15s ease,box-shadow .15s ease;
+    }
+    .textarea:focus,.input:focus{outline:none;border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,0.12)}
+    .textarea{min-height:90px;resize:vertical}
+    .help{font-size:.85rem;color:#6b7280;margin-top:6px}
+    .muted{color:#6b7280;font-size:.9rem}
+
+    /* Progress + status */
+    .progress{display:none;margin-top:12px}
+    .bar{width:100%;height:8px;background:#eef2f7;border-radius:6px;overflow:hidden}
+    .fill{height:100%;width:0;background:#2563eb;transition:width .3s ease}
+    .status{display:none;margin-top:12px;padding:12px;border-radius:8px;border:1px solid #e5e7eb}
+    .status.success{background:#f0fdf4;border-color:#bbf7d0;color:#166534}
+    .status.error{background:#fef2f2;border-color:#fecaca;color:#991b1b}
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="header">
+      <div class="title">PDF Tools</div>
+      <div class="subtitle">Highlight keywords in drawings, and split large specs by mechanical sub-section.</div>
+    </div>
+
+    <div class="grid">
+      <!-- ============== LEFT: HIGHLIGHTER (pink) ============== -->
+      <section class="card card--pink" aria-labelledby="hl-title">
+        <h2 id="hl-title">Highlight PDF</h2>
+        <p class="lead">Upload a PDF and automatically highlight the keywords you provide.</p>
+
+        <div class="drop-zone" id="dropZone">
+          <div class="dz-icon">📄</div>
+          <div class="dz-title">Drag & drop your PDF</div>
+          <div class="dz-sub">or click to browse</div>
+          <div class="row">
+            <button class="btn" onclick="document.getElementById('fileInput').click()">Choose file</button>
+          </div>
+        </div>
+        <input type="file" id="fileInput" class="file-input" accept=".pdf"/>
+
+        <div style="margin-top:10px">
+          <label for="keywordsInput">Keywords to highlight</label>
+          <textarea id="keywordsInput" class="textarea" placeholder="Loading keywords..."></textarea>
+          <div class="help">Loaded from <code>plan_keywords.txt</code> when available. Edit as needed.</div>
+          <div id="keywordsStatus" class="help" style="color:#059669"></div>
+        </div>
+
+        <div class="row" style="margin-top:auto">
+          <button class="btn btn-primary" onclick="handleRun()">Highlight PDF</button>
+          <button class="btn" type="button" onclick="handleClear()">Clear</button>
+        </div>
+
+        <div class="progress" id="progress">
+          <div class="bar"><div class="fill" id="progressFill"></div></div>
+          <div id="progressText" class="muted" style="margin-top:6px">Processing PDF…</div>
+        </div>
+        <div class="status" id="status"></div>
+      </section>
+
+      <!-- ============== RIGHT: SPEC SPLITTER (pink) ============== -->
+      <section class="card card--pink" aria-labelledby="ss-title">
+        <h2 id="ss-title">Split Spec by Mechanical Sub-Section</h2>
+        <p class="lead">Upload the project specifications PDF and split by “SECTION 23 xx xx”.</p>
+
+        <div class="drop-zone" id="specDrop">
+          <div class="dz-icon">📚</div>
+          <div class="dz-title">Drag & drop your spec PDF</div>
+          <div class="dz-sub">or click to browse</div>
+          <div class="row">
+            <button class="btn" onclick="document.getElementById('specFileInput').click()">Choose file</button>
+          </div>
+        </div>
+        <input type="file" id="specFileInput" class="file-input" accept=".pdf"/>
+
+        <div class="row" style="margin-top:6px;justify-content:center;">
+          <div style="flex:0 0 110px">
+            <label for="divisionInput">Division</label>
+            <input id="divisionInput" class="input" maxlength="2" placeholder="23" value="23"/>
+          </div>
+          <div style="flex:1 1 auto; min-width:240px">
+            <label for="sectionRegexInput">Section pattern (optional)</label>
+            <input id="sectionRegexInput" class="input"
+                   placeholder='^SECTION\\s+(\\d{2})\\s+(\\d{2})\\s+(\\d{2})'/>
+            <div class="help">Default matches headers like “SECTION 23 36 36”.</div>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:auto">
+          <button class="btn btn-primary" onclick="specRun()">Split Spec</button>
+          <button class="btn" type="button" onclick="specClear()">Clear</button>
+        </div>
+
+        <div class="progress" id="specProgress">
+          <div class="bar"><div class="fill" id="specProgressFill"></div></div>
+          <div id="specProgressText" class="muted" style="margin-top:6px">Waiting…</div>
+        </div>
+        <div class="status" id="specStatus"></div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    /* ---------------- Highlight panel ---------------- */
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const keywordsInput = document.getElementById('keywordsInput');
+    const keywordsStatus = document.getElementById('keywordsStatus');
+    const progress = document.getElementById('progress');
+    const progressFill = document.getElementById('progressFill');
+    const progressText = document.getElementById('progressText');
+    const statusBox = document.getElementById('status');
+
+    async function loadDefaultKeywords(){
+      try{
+        const r = await fetch('/api/get-default-keywords');
+        const d = await r.json();
+        if(d.success){
+          keywordsInput.value = d.keywords;
+          keywordsInput.placeholder = "Enter keywords separated by commas…";
+          keywordsStatus.textContent = `✓ Loaded ${d.count} keywords from plan_keywords.txt`;
+          setTimeout(()=>{keywordsStatus.textContent='';},3500);
+        }else{
+          setFallback("plan_keywords.txt not found");
+        }
+      }catch(e){ setFallback("server connection failed"); }
+    }
+    function setFallback(reason){
+      const fallback = "supply air, return air, TDF, 24x12, insulate, liner, diameter, ductwork";
+      keywordsInput.value = fallback;
+      keywordsInput.placeholder = "Enter keywords separated by commas…";
+      keywordsStatus.textContent = `Using default keywords (${reason})`;
+      keywordsStatus.style.color = "#9a6a00";
+      setTimeout(()=>{keywordsStatus.textContent=''; keywordsStatus.style.color="";},3500);
+    }
+
+    dropZone.addEventListener('click',()=>fileInput.click());
+    dropZone.addEventListener('dragover',e=>{e.preventDefault(); dropZone.classList.add('dragover');});
+    dropZone.addEventListener('dragleave',()=>dropZone.classList.remove('dragover'));
+    dropZone.addEventListener('drop',e=>{
+      e.preventDefault(); dropZone.classList.remove('dragover');
+      if(e.dataTransfer.files.length>0) handleFile(e.dataTransfer.files[0]);
+    });
+    fileInput.addEventListener('change',e=>{
+      if(e.target.files.length>0) handleFile(e.target.files[0]);
+    });
+
+    function handleRun(){
+      if(fileInput.files && fileInput.files[0]) handleFile(fileInput.files[0]);
+      else setStatus('Please choose a PDF file.','error');
+    }
+    function handleClear(){
+      fileInput.value=''; keywordsInput.value=''; resetProgress(); statusBox.style.display='none'; keywordsInput.focus();
+    }
+
+    function handleFile(file){
+      const isPdf = (file.type && file.type.includes('pdf')) || /\.pdf$/i.test(file.name);
+      if(!isPdf){ setStatus('Please select a PDF file.','error'); return; }
+      const kws = keywordsInput.value.trim();
+      if(!kws){ setStatus('Please enter keywords to highlight.','error'); return; }
+      processPDF(file,kws);
+    }
+
+    async function processPDF(file, keywords){
+      showProgress('Uploading PDF…', 10);
+      dropZone.classList.add('processing');
+      const form = new FormData();
+      form.append('pdf', file);
+      form.append('keywords', keywords);
+      try{
+        const resp = await fetch('/api/highlight-pdf', {method:'POST', body:form});
+        showProgress('Processing document…', 55);
+        if(!resp.ok){
+          let detail='Processing failed';
+          try{const err=await resp.json(); if(err?.error) detail=err.error;}catch{}
+          throw new Error(detail);
+        }
+        const blob = await resp.blob();
+        showProgress('Preparing download…', 85);
+        const url = URL.createObjectURL(blob);
+        const a=document.createElement('a'); a.href=url;
+        a.download = file.name.replace(/\.pdf$/i,'') + '-highlighted.pdf';
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showProgress('Done.',100);
+        setStatus('Successfully highlighted PDF. Your download should begin shortly.','success');
+      }catch(err){
+        showProgress('',100);
+        setStatus(err.message||'Something went wrong.','error');
+      }finally{
+        dropZone.classList.remove('processing');
+      }
+    }
+
+    function showProgress(text,pct){
+      progress.style.display='block';
+      progressText.textContent = text || 'Processing…';
+      progressFill.style.width = (pct||0) + '%';
+    }
+    function resetProgress(){
+      progress.style.display='none';
+      progressText.textContent='Processing PDF…';
+      progressFill.style.width='0%';
+    }
+    function setStatus(msg,type){
+      statusBox.textContent=msg;
+      statusBox.className='status ' + (type||'');
+      statusBox.style.display='block';
+    }
+    keywordsInput.addEventListener('input', function(){
+      this.style.height='auto';
+      this.style.height=Math.max(90,this.scrollHeight)+'px';
+    });
+    loadDefaultKeywords();
+
+    /* ---------------- Spec splitter panel ---------------- */
+    const specDrop = document.getElementById('specDrop');
+    const specFileInput = document.getElementById('specFileInput');
+    const divisionInput = document.getElementById('divisionInput');
+    const sectionRegexInput = document.getElementById('sectionRegexInput');
+    const specProgress = document.getElementById('specProgress');
+    const specProgressFill = document.getElementById('specProgressFill');
+    const specProgressText = document.getElementById('specProgressText');
+    const specStatus = document.getElementById('specStatus');
+
+    specDrop.addEventListener('click',()=>specFileInput.click());
+    specDrop.addEventListener('dragover',e=>{e.preventDefault(); specDrop.classList.add('dragover');});
+    specDrop.addEventListener('dragleave',()=>specDrop.classList.remove('dragover'));
+    specDrop.addEventListener('drop',e=>{
+      e.preventDefault(); specDrop.classList.remove('dragover');
+      if(e.dataTransfer.files.length>0) specHandleFile(e.dataTransfer.files[0]);
+    });
+    specFileInput.addEventListener('change',e=>{
+      if(e.target.files.length>0) specHandleFile(e.target.files[0]);
+    });
+
+    function specHandleFile(file){
+      const isPdf = (file.type && file.type.includes('pdf')) || /\.pdf$/i.test(file.name);
+      if(!isPdf){ specSetStatus('Please select a PDF file.','error'); return; }
+      specRun(file);
+    }
+    function specClear(){
+      specFileInput.value=''; divisionInput.value='23'; sectionRegexInput.value='';
+      specResetProgress(); specStatus.style.display='none';
+    }
+
+    async function specRun(fileOverride){
+      const file = fileOverride || (specFileInput.files && specFileInput.files[0]);
+      if(!file){ specSetStatus('Please choose a spec PDF file.','error'); return; }
+      const division = (divisionInput.value||'23').trim();
+      if(!/^\d{2}$/.test(division)){ specSetStatus("Division must be 2 digits (e.g., '23').",'error'); return; }
+      const section_regex = (sectionRegexInput.value||'').trim();
+
+      specShowProgress('Uploading spec…', 10);
+      specDrop.classList.add('processing');
+
+      try{
+        const form = new FormData();
+        form.append('pdf', file);
+        form.append('division', division);
+        if(section_regex) form.append('section_regex', section_regex);
+
+        const resp = await fetch('/api/split-spec', {method:'POST', body:form});
+        specShowProgress('Splitting sections…', 60);
+
+        if(!resp.ok){
+          let detail='Split failed';
+          try{const err=await resp.json(); if(err?.error) detail=err.error;}catch{}
+          throw new Error(detail);
+        }
+
+        const blob = await resp.blob();
+        specShowProgress('Preparing download…', 90);
+        const url = URL.createObjectURL(blob);
+        const a=document.createElement('a'); a.href=url;
+        a.download = file.name.replace(/\.pdf$/i,'') + `-div${division}-subsections.zip`;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        specShowProgress('Done.', 100);
+        specSetStatus('Successfully split spec. A ZIP has been downloaded.','success');
+      }catch(err){
+        specShowProgress('',100);
+        specSetStatus(err.message||'Something went wrong.','error');
+      }finally{
+        specDrop.classList.remove('processing');
+      }
+    }
+
+    function specShowProgress(text,pct){
+      specProgress.style.display='block';
+      specProgressText.textContent = text || 'Working…';
+      specProgressFill.style.width = (pct||0) + '%';
+    }
+    function specResetProgress(){
+      specProgress.style.display='none';
+      specProgressText.textContent='Waiting…';
+      specProgressFill.style.width='0%';
+    }
+    function specSetStatus(msg,type){
+      specStatus.textContent=msg;
+      specStatus.className='status ' + (type||'');
+      specStatus.style.display='block';
+    }
+  </script>
+</body>
+</html>
