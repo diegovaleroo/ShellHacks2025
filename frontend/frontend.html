@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PDF Upload</title>
+    <style>
+        body {
+          font-family: Arial, sans-serif;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          padding: 40px;
+        }
+        .drop-zone {
+          border: 2px dashed #4a90e2;
+          border-radius: 10px;
+          padding: 40px;
+          text-align: center;
+          color: #555;
+          width: 300px;
+          cursor: pointer;
+        }
+        .drop-zone.dragover {
+          background-color: #eaf3ff;
+        }
+        #upload-btn {
+          margin-top: 20px;
+          padding: 10px 20px;
+          background: #4a90e2;
+          color: white;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+        }
+        #result {
+          margin-top: 20px;
+          white-space: pre-wrap;
+          text-align: left;
+          max-width: 400px;
+        }
+    </style>
+</head>
+<body>
+<h1>Upload PDF</h1>
+
+<div id="drop-zone" class="drop-zone">
+    Drag & Drop PDF here or click to select
+    <input type="file" id="fileInput" accept="application/pdf" hidden>
+</div>
+
+<button id="upload-btn">Upload</button>
+
+<div id="result"></div>
+
+<script>
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('fileInput');
+    const uploadBtn = document.getElementById('upload-btn');
+    const resultDiv = document.getElementById('result');
+    let selectedFile = null;
+
+    // Click on drop zone opens file input
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    // Handle file selection
+    fileInput.addEventListener('change', (e) => {
+      selectedFile = e.target.files[0];
+      dropZone.textContent = selectedFile ? selectedFile.name : "Drag & Drop PDF here or click to select";
+    });
+
+    // Handle drag & drop
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('dragover');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      selectedFile = e.dataTransfer.files[0];
+      dropZone.textContent = selectedFile ? selectedFile.name : "Drag & Drop PDF here or click to select";
+    });
+
+    // Upload file
+    uploadBtn.addEventListener('click', async () => {
+      if (!selectedFile) {
+        alert("Please select a PDF first.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+
+      try {
+        const response = await fetch("http://localhost:5000/upload", {
+          method: "POST",
+          body: formData
+        });
+        const data = await response.json();
+        resultDiv.textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        resultDiv.textContent = "Error uploading file: " + err;
+      }
+    });
+</script>
+</body>
+</html>
