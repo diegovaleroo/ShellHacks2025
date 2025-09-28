@@ -7,50 +7,19 @@
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     html,body{height:100%}
-    body{
-      font:16px/1.5  Arial, Helvetica, sans-serif;
-      background:#111c3d; /* dark blue */
-      color:#1f2937;
-      padding:24px;
-    }
+    body{font:16px/1.5 Arial, Helvetica, sans-serif;background:#111c3d;color:#1f2937;padding:24px;}
     .page{max-width:1200px;margin:0 auto;}
     .header{margin-bottom:20px;text-align:center}
     .title{font-size:2.4rem;font-weight:700;color:#ffffff;letter-spacing:.3px}
     .subtitle{font-size:1rem;color:#ffffff;opacity:.9;margin-top:6px}
-
-    /* Two-column layout */
-    .grid{
-      display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:stretch;
-    }
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:stretch;}
     @media (max-width: 900px){ .grid{grid-template-columns:1fr} }
-
-    /* Card */
-    .card{
-      background:#ffffff;
-      border:1px solid #e5e7eb;
-      border-radius:12px;
-      padding:20px;
-      box-shadow:0 1px 2px rgba(0,0,0,.04);
-      height:100%;
-      display:flex;flex-direction:column;
-    }
-    /* Light pastel pink pane (unchanged color) */
+    .card{background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;box-shadow:0 1px 2px rgba(0,0,0,.04);height:100%;display:flex;flex-direction:column;}
     .card--pink{ background:#fdeff4; border-color:#f7d6e6; }
-    /* Ensure both pink cards look same size on desktop */
-    @media (min-width: 901px){
-      .card--pink{ min-height: 560px; }
-    }
-
-    .card h2{
-      font-size:1.3rem;color:#111827;margin-bottom:6px;text-align:center;
-    }
+    @media (min-width: 901px){ .card--pink{ min-height: 560px; } }
+    .card h2{font-size:1.3rem;color:#111827;margin-bottom:6px;text-align:center;}
     .card p.lead{font-size:.95rem;color:#6b7280;margin-bottom:14px;text-align:center}
-
-    /* Drop zone */
-    .drop-zone{
-      border:2px dashed #d1d5db;border-radius:10px;padding:24px;background:#fafafa;
-      transition:background .15s ease,border-color .15s ease;cursor:pointer;text-align:center;margin:10px 0 8px;
-    }
+    .drop-zone{border:2px dashed #d1d5db;border-radius:10px;padding:24px;background:#fafafa;transition:background .15s ease,border-color .15s ease;cursor:pointer;text-align:center;margin:10px 0 8px;}
     .drop-zone:hover{background:#f5f5f5}
     .drop-zone.dragover{border-color:#2563eb;background:#eff6ff}
     .drop-zone.processing{border-color:#9ca3af;background:#f3f4f6}
@@ -58,30 +27,17 @@
     .dz-icon{font-size:1.6rem;color:#6b7280;margin-bottom:6px}
     .dz-title{font-weight:600;color:#374151}
     .dz-sub{font-size:.9rem;color:#6b7280;margin-top:2px}
-
-    /* Buttons */
     .row{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap;justify-content:center}
-    .btn{
-      appearance:none;border:1px solid #e5e7eb;background:#fff;color:#111827;
-      padding:10px 14px;border-radius:8px;font-weight:600;cursor:pointer;
-      transition:background .15s ease,border-color .15s ease;
-    }
+    .btn{appearance:none;border:1px solid #e5e7eb;background:#fff;color:#111827;padding:10px 14px;border-radius:8px;font-weight:600;cursor:pointer;transition:background .15s ease,border-color .15s ease;}
     .btn:hover{background:#f9fafb;border-color:#d1d5db}
     .btn-primary{border-color:#2563eb;background:#2563eb;color:#fff}
     .btn-primary:hover{background:#1d4ed8;border-color:#1d4ed8}
-
-    /* Fields */
     label{font-weight:600;color:#374151;margin-bottom:6px;display:block}
-    .textarea,.input{
-      width:100%;border:1px solid #e5e7eb;border-radius:8px;padding:10px;font:inherit;background:#fff;
-      transition:border-color .15s ease,box-shadow .15s ease;
-    }
+    .textarea,.input{width:100%;border:1px solid #e5e7eb;border-radius:8px;padding:10px;font:inherit;background:#fff;transition:border-color .15s ease,box-shadow .15s ease;}
     .textarea:focus,.input:focus{outline:none;border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,0.12)}
     .textarea{min-height:90px;resize:vertical}
     .help{font-size:.85rem;color:#6b7280;margin-top:6px}
     .muted{color:#6b7280;font-size:.9rem}
-
-    /* Progress + status */
     .progress{display:none;margin-top:12px}
     .bar{width:100%;height:8px;background:#eef2f7;border-radius:6px;overflow:hidden}
     .fill{height:100%;width:0;background:#2563eb;transition:width .3s ease}
@@ -98,7 +54,7 @@
     </div>
 
     <div class="grid">
-      <!-- ============== LEFT: HIGHLIGHTER (pink) ============== -->
+      <!-- ============== LEFT: HIGHLIGHTER ============== -->
       <section class="card card--pink" aria-labelledby="hl-title">
         <h2 id="hl-title">Highlight PDF</h2>
         <p class="lead">Upload a PDF and automatically highlight the keywords you provide.</p>
@@ -132,7 +88,7 @@
         <div class="status" id="status"></div>
       </section>
 
-      <!-- ============== RIGHT: SPEC SPLITTER (pink) ============== -->
+      <!-- ============== RIGHT: SPEC SPLITTER ============== -->
       <section class="card card--pink" aria-labelledby="ss-title">
         <h2 id="ss-title">Split Spec by Mechanical Sub-Section</h2>
         <p class="lead">Upload the project specifications PDF and split by “SECTION 23 xx xx”.</p>
@@ -148,21 +104,30 @@
         <input type="file" id="specFileInput" class="file-input" accept=".pdf"/>
 
         <div class="row" style="margin-top:6px;justify-content:center;">
-          <div style="flex:0 0 110px">
+          <div style="flex:0 0 200px">
             <label for="divisionInput">Division</label>
             <input id="divisionInput" class="input" maxlength="2" placeholder="23" value="23"/>
+            <div class="help">We look for headers like “SECTION 23 xx xx”.</div>
           </div>
-          <div style="flex:1 1 auto; min-width:240px">
-            <label for="sectionRegexInput">Section pattern (optional)</label>
-            <input id="sectionRegexInput" class="input"
-                   placeholder='^SECTION\\s+(\\d{2})\\s+(\\d{2})\\s+(\\d{2})'/>
-            <div class="help">Default matches headers like “SECTION 23 36 36”.</div>
+        </div>
+
+        <!-- Analysis options (prompt only) -->
+        <div class="row" style="margin-top:6px;justify-content:center;">
+          <div style="flex:1 1 auto;">
+            <label for="analysisPrompt">Analysis prompt (optional)</label>
+            <textarea id="analysisPrompt" class="textarea" placeholder="Leave blank to use the default analyzer prompt"></textarea>
           </div>
         </div>
 
         <div class="row" style="margin-top:auto">
           <button class="btn btn-primary" onclick="specRun()">Split Spec</button>
           <button class="btn" type="button" onclick="specClear()">Clear</button>
+          <button class="btn btn-primary" type="button" onclick="specSplitAndAnalyze()">Split & Analyze (async)</button>
+        </div>
+
+        <div class="row" style="margin-top:6px; justify-content:center;">
+          <a id="splitZipLink" class="btn" style="display:none">Download Split ZIP</a>
+          <a id="analysisZipLink" class="btn btn-primary" style="display:none">Download Analysis ZIP</a>
         </div>
 
         <div class="progress" id="specProgress">
@@ -291,11 +256,14 @@
     const specDrop = document.getElementById('specDrop');
     const specFileInput = document.getElementById('specFileInput');
     const divisionInput = document.getElementById('divisionInput');
-    const sectionRegexInput = document.getElementById('sectionRegexInput');
     const specProgress = document.getElementById('specProgress');
     const specProgressFill = document.getElementById('specProgressFill');
     const specProgressText = document.getElementById('specProgressText');
     const specStatus = document.getElementById('specStatus');
+
+    const analysisPrompt = document.getElementById('analysisPrompt');
+    const splitZipLink = document.getElementById('splitZipLink');
+    const analysisZipLink = document.getElementById('analysisZipLink');
 
     specDrop.addEventListener('click',()=>specFileInput.click());
     specDrop.addEventListener('dragover',e=>{e.preventDefault(); specDrop.classList.add('dragover');});
@@ -314,7 +282,9 @@
       specRun(file);
     }
     function specClear(){
-      specFileInput.value=''; divisionInput.value='23'; sectionRegexInput.value='';
+      specFileInput.value=''; divisionInput.value='23';
+      analysisPrompt.value='';
+      splitZipLink.style.display='none'; analysisZipLink.style.display='none';
       specResetProgress(); specStatus.style.display='none';
     }
 
@@ -323,7 +293,6 @@
       if(!file){ specSetStatus('Please choose a spec PDF file.','error'); return; }
       const division = (divisionInput.value||'23').trim();
       if(!/^\d{2}$/.test(division)){ specSetStatus("Division must be 2 digits (e.g., '23').",'error'); return; }
-      const section_regex = (sectionRegexInput.value||'').trim();
 
       specShowProgress('Uploading spec…', 10);
       specDrop.classList.add('processing');
@@ -332,7 +301,6 @@
         const form = new FormData();
         form.append('pdf', file);
         form.append('division', division);
-        if(section_regex) form.append('section_regex', section_regex);
 
         const resp = await fetch('/api/split-spec', {method:'POST', body:form});
         specShowProgress('Splitting sections…', 60);
@@ -346,7 +314,7 @@
         const blob = await resp.blob();
         specShowProgress('Preparing download…', 90);
         const url = URL.createObjectURL(blob);
-        const a=document.createElement('a'); a.href=url;
+        const a = document.createElement('a'); a.href=url;
         a.download = file.name.replace(/\.pdf$/i,'') + `-div${division}-subsections.zip`;
         document.body.appendChild(a); a.click(); document.body.removeChild(a);
         URL.revokeObjectURL(url);
@@ -359,6 +327,118 @@
       }finally{
         specDrop.classList.remove('processing');
       }
+    }
+
+    async function downloadFromUrl(url, suggestedName) {
+      const resp = await fetch(url);
+      if (!resp.ok) {
+        let detail = `HTTP ${resp.status}`;
+        try { detail = (await resp.json()).error || detail; } catch {}
+        throw new Error(detail);
+      }
+      const blob = await resp.blob();
+      const a = document.createElement('a');
+      const objUrl = URL.createObjectURL(blob);
+      a.href = objUrl;
+      a.download = suggestedName || 'download';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(objUrl);
+    }
+    function setDownloadLink(el, url, name) {
+      el.href = url;
+      el.style.display = 'inline-block';
+      el.onclick = async (e) => {
+        e.preventDefault();
+        try { await downloadFromUrl(url, name); }
+        catch (err) { specSetStatus('Download failed: ' + (err.message || 'unknown error'), 'error'); }
+      };
+    }
+
+    async function specSplitAndAnalyze(fileOverride){
+      const file = fileOverride || (specFileInput.files && specFileInput.files[0]);
+      if(!file){ specSetStatus('Please choose a spec PDF file.','error'); return; }
+
+      const division = (divisionInput.value||'23').trim();
+      if(!/^\d{2}$/.test(division)){ specSetStatus("Division must be 2 digits (e.g., '23').",'error'); return; }
+      const prompt = (analysisPrompt.value||'').trim();
+
+      splitZipLink.style.display = 'none';
+      analysisZipLink.style.display = 'none';
+
+      specShowProgress('Uploading & starting job…', 10);
+      specDrop.classList.add('processing');
+
+      try{
+        const form = new FormData();
+        form.append('pdf', file);
+        form.append('division', division);
+        if(prompt) form.append('prompt', prompt);
+
+        const resp = await fetch('/api/split-and-analyze-async', { method:'POST', body: form });
+        if(!resp.ok){
+          let detail='Split+Analyze start failed';
+          try{ const err=await resp.json(); if(err?.error) detail=err.error; }catch{}
+          throw new Error(detail);
+        }
+        const data = await resp.json();
+        specShowProgress('Splitting… preparing split ZIP', 45);
+
+        const splitName = file.name.replace(/\.pdf$/i,'') + `-div${division}-subsections.zip`;
+        setDownloadLink(splitZipLink, data.split_zip_url, splitName);
+        try { await downloadFromUrl(data.split_zip_url, splitName); } catch (e) {
+          specSetStatus('Split ZIP download failed: ' + e.message, 'error');
+        }
+
+        specShowProgress('Analyzing sections in background…', 65);
+        specSetStatus('Split ready. Analysis running in background…','success');
+
+        await pollJobUntilDone(data.status_url, data.analysis_zip_url, file.name.replace(/\.pdf$/i,'') + `-div${division}-analysis.zip`);
+
+      }catch(err){
+        specShowProgress('',100);
+        specSetStatus(err.message||'Something went wrong.','error');
+      }finally{
+        specDrop.classList.remove('processing');
+      }
+    }
+
+    async function pollJobUntilDone(statusUrl, analysisUrl, analysisName){
+      let tries = 0;
+      const maxTries = 600;
+      while(tries < maxTries){
+        await new Promise(r => setTimeout(r, 2000));
+        tries++;
+        try{
+          const r = await fetch(statusUrl);
+          if(!r.ok) throw new Error('status check failed');
+          const s = await r.json();
+          if(s.status === 'done' && s.analysis_ready){
+            setDownloadLink(analysisZipLink, analysisUrl, analysisName);
+            try { await downloadFromUrl(analysisUrl, analysisName); } catch (e) {
+              specSetStatus('Auto-download failed: ' + e.message, 'error');
+            }
+            specShowProgress('Analysis complete.', 100);
+            specSetStatus(
+              s?.stats
+              ? `Analysis complete. ${s.stats.ok}/${s.stats.total} succeeded.`
+              : 'Analysis complete. You can re-download the ZIP anytime.',
+              'success'
+            );
+            return;
+          }else if(s.status === 'error'){
+            specShowProgress('',100);
+            specSetStatus(s.message || 'Analysis failed.','error');
+            return;
+          }else{
+            specShowProgress('Analyzing sections…', Math.min(99, 65 + Math.floor(tries/2)));
+          }
+        }catch{
+          /* transient error; keep polling */
+        }
+      }
+      specSetStatus('Analysis timed out. You can retry or check server logs.','error');
     }
 
     function specShowProgress(text,pct){
